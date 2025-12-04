@@ -1,0 +1,41 @@
+# Configuración de la aplicación de reportes de trayectoria
+
+# Base de datos PostgreSQL
+database:
+  host: localhost
+  port: 5432
+  database: trayectoria_db
+  user: postgres
+  password: ""  # Se recomienda usar variables de entorno
+  schema: core
+  pool_size: 5
+  max_overflow: 10
+
+# Configuración de reportes
+reports:
+  year_start: 2021
+  year_end: 2025
+  grados:
+    - LL  # Licenciatura
+    - EL  # Especialidad
+    - ML  # Maestría
+
+# Scheduler para generación automática
+scheduler:
+  enabled: true
+  schedule_time: "08:00"  # Hora en formato HH:MM (24hrs)
+  timezone: "America/Mexico_City"
+
+# Dashboard
+dashboard:
+  title: "Sistema de Reportes de Trayectoria"
+  port: 8501
+  host: "0.0.0.0"
+  theme: "light"
+
+# Logging
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  max_file_size_mb: 10
+  backup_count: 5
