@@ -53,6 +53,9 @@ class TrayectoriaTransformer:
             # Merge para agregar generación a todos los registros
             df_all = df_all.merge(estudiantes_ingreso, on='estudiante_id', how='left')
 
+            # Filtrar solo registros con generación válida (excluir NaN)
+            df_all = df_all[df_all['generacion'].notna()].copy()
+
             # Calcular número de periodo desde ingreso
             df_all['generacion_año'] = df_all['generacion'].str[:4].astype(int)
             df_all['generacion_num'] = df_all['generacion'].str[4:].astype(int)
@@ -88,7 +91,10 @@ class TrayectoriaTransformer:
             df_trayectoria = pd.DataFrame(rows)
 
             # Rellenar NaN con 0
-            df_trayectoria = df_trayectoria.fillna(0).astype({'Generación': str})
+            df_trayectoria = df_trayectoria.fillna(0)
+
+            # Convertir columna Generación a string
+            df_trayectoria['Generación'] = df_trayectoria['Generación'].astype(str)
 
             # Convertir conteos a int
             for col in df_trayectoria.columns:
