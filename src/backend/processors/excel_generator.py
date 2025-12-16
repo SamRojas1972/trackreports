@@ -131,11 +131,18 @@ class ExcelGenerator:
         current_row += 1
         start_data_row = current_row
 
-        # Escribir datos
-        for _, row_data in df.iterrows():
-            for col_idx, value in enumerate(row_data, start=1):
-                ws.cell(row=current_row, column=col_idx, value=value)
-            current_row += 1
+        # Escribir datos - método optimizado
+        if not apply_styles and len(df) > 1000:
+            # Para DataFrames grandes sin estilos, usar método bulk más rápido
+            for row in df.itertuples(index=False):
+                ws.append(row)
+            current_row = start_data_row + len(df)
+        else:
+            # Para DataFrames pequeños o con estilos, usar método normal
+            for _, row_data in df.iterrows():
+                for col_idx, value in enumerate(row_data, start=1):
+                    ws.cell(row=current_row, column=col_idx, value=value)
+                current_row += 1
 
         if apply_styles and len(df) > 0:
             self._apply_data_style(ws, start_data_row, current_row - 1, 1, len(df.columns))
@@ -195,11 +202,13 @@ class ExcelGenerator:
             wb.remove(wb.active)  # Remover hoja por defecto
 
             # Crear hojas
+            # Hoja1: Datos consolidados SIN estilos (para velocidad)
             self.create_worksheet_from_dataframe(
                 wb,
                 data['todos'],
                 'Hoja1',
-                title='Datos Consolidados'
+                title='Datos Consolidados',
+                apply_styles=False  # Sin estilos para agilizar con grandes volúmenes
             )
 
             self.create_worksheet_from_dataframe(

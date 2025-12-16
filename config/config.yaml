@@ -2,18 +2,18 @@
 
 # Base de datos PostgreSQL
 database:
-  host: localhost
-  port: 5432
-  database: trayectoria_db
-  user: postgres
-  password: ""  # Se recomienda usar variables de entorno
+  host: tlalocan-sappo.mexicocentral.cloudapp.azure.com
+  port: 30869
+  database: dbsappo
+  user: samuel_rojas
+  password: B7b5EzzGbR7KVCEmmZMeXbDgkaMOhIvs  # Se recomienda usar variables de entorno
   schema: core
   pool_size: 5
   max_overflow: 10
 
 # Configuración de reportes
 reports:
-  year_start: 2021
+  year_start: 2025
   year_end: 2025
   grados:
     - LL  # Licenciatura

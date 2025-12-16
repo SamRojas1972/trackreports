@@ -33,7 +33,7 @@ class TrayectoriaQueries:
             pe.id AS "periodo_id",
             pr.id AS "programa_id",
             (
-                SELECT count(*)
+                SELECT count(DISTINCT la.estudiante_id)
                 FROM core.lista_asistencia AS la
                 JOIN core.estudiante AS e ON la.estudiante_id = e.id
                 JOIN core.estudiante_programa AS ep ON (e.id) = (ep.estudiante_id)
@@ -41,7 +41,7 @@ class TrayectoriaQueries:
                 AND ep.periodo_ingreso_id = pe.id
             ) AS "nuevo_ingreso",
             (
-                SELECT count(*)
+                SELECT count(DISTINCT la.estudiante_id)
                 FROM core.lista_asistencia AS la
                 JOIN core.estudiante AS e ON la.estudiante_id = e.id
                 JOIN core.estudiante_programa AS ep ON (e.id) = (ep.estudiante_id)
@@ -49,7 +49,7 @@ class TrayectoriaQueries:
                 AND ep.periodo_ingreso_id = pe.id AND ep.estatus_academico_id = 'EG'
             ) AS "egresados",
             (
-                SELECT count(*)
+                SELECT count(DISTINCT la.estudiante_id)
                 FROM core.lista_asistencia AS la
                 JOIN core.estudiante AS e ON la.estudiante_id = e.id
                 JOIN core.estudiante_programa AS ep ON (e.id) = (ep.estudiante_id)
@@ -81,7 +81,7 @@ class TrayectoriaQueries:
         SELECT
             pe.id AS "periodo_id",
             (
-                SELECT count(*)
+                SELECT count(DISTINCT la.estudiante_id)
                 FROM core.lista_asistencia AS la
                 JOIN core.estudiante AS e ON la.estudiante_id = e.id
                 JOIN core.estudiante_programa AS ep ON (e.id) = (ep.estudiante_id)
@@ -91,7 +91,7 @@ class TrayectoriaQueries:
                 AND ep.periodo_ingreso_id = pe.id
             ) AS "nuevo_ingreso",
             (
-                SELECT count(*)
+                SELECT count(DISTINCT la.estudiante_id)
                 FROM core.lista_asistencia AS la
                 JOIN core.estudiante AS e ON la.estudiante_id = e.id
                 JOIN core.estudiante_programa AS ep ON (e.id) = (ep.estudiante_id)
@@ -101,7 +101,7 @@ class TrayectoriaQueries:
                 AND ep.periodo_ingreso_id = pe.id AND ep.estatus_academico_id = 'EG'
             ) AS "egresados",
             (
-                SELECT count(*)
+                SELECT count(DISTINCT la.estudiante_id)
                 FROM core.lista_asistencia AS la
                 JOIN core.estudiante AS e ON la.estudiante_id = e.id
                 JOIN core.estudiante_programa AS ep ON (e.id) = (ep.estudiante_id)
@@ -130,13 +130,14 @@ class TrayectoriaQueries:
             Query SQL con listado de estudiantes nuevos
         """
         return f"""
-        SELECT
+        SELECT DISTINCT
             pr.campus,
             pe.id AS "periodo_id",
             e.id AS "estudiante_id",
             e.apellidos || ' ' || e.nombres AS "estudiante_nombre",
             cga.descripcion AS "nivel",
             pr.id AS "programa_id",
+            'No copiar. Formula.' AS "program",
             pr.escuela,
             pr.nombre || ' ' || pr.plan AS "programa",
             'NI' AS "tipo"
@@ -167,13 +168,14 @@ class TrayectoriaQueries:
             Query SQL con listado de estudiantes reinscritos
         """
         return f"""
-        SELECT
+        SELECT DISTINCT
             pr.campus,
             pe.id AS "periodo_id",
             e.id AS "estudiante_id",
             e.apellidos || ' ' || e.nombres AS "estudiante_nombre",
             cga.descripcion AS "nivel",
             pr.id AS "programa_id",
+            'No copiar. Formula.' AS "program",
             pr.escuela,
             pr.nombre || ' ' || pr.plan AS "programa",
             'REI' AS "tipo"

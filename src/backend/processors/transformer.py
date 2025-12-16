@@ -69,14 +69,18 @@ class TrayectoriaTransformer:
             # Crear tabla pivote por generación
             generaciones = sorted(df_all['generacion'].dropna().unique())
 
+            # Calcular el número máximo de periodos necesarios (matriz cuadrada)
+            # El número de columnas debe ser igual al número de generaciones
+            max_periodos = len(generaciones)
+
             rows = []
             for gen in generaciones:
                 df_gen = df_all[df_all['generacion'] == gen]
 
                 row = {'Generación': gen}
 
-                # Contar estudiantes únicos por periodo
-                for p in range(0, 7):  # P1 a P6 (0 es nuevo ingreso)
+                # Contar estudiantes únicos por periodo (matriz cuadrada)
+                for p in range(0, max_periodos):  # De 0 (nuevo ingreso) hasta max_periodos-1
                     estudiantes_en_periodo = df_gen[
                         df_gen['periodos_desde_ingreso'] == p
                     ]['estudiante_id'].nunique()
