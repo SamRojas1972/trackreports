@@ -169,8 +169,11 @@ def show_trayectoria():
                 datos = extractor.extract_all_for_grado(grado)
 
                 # Transformar datos
-                transformer = TrayectoriaTransformer(datos['resumen'])
-                trayectoria_df = transformer.crear_tabla_trayectoria()
+                transformer = TrayectoriaTransformer()
+                trayectoria_df = transformer.create_trayectoria_table(
+                    datos['nuevo_ingreso'],
+                    datos['reinscritos']
+                )
 
                 st.success(f"✅ Datos cargados: {len(datos['nuevo_ingreso'])} NI, {len(datos['reinscritos'])} Reinscritos")
 
