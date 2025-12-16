@@ -13,7 +13,7 @@ database:
 
 # Configuración de reportes
 reports:
-  year_start: 2025
+  year_start: 2021
   year_end: 2025
   grados:
     - LL  # Licenciatura

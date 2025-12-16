@@ -142,10 +142,14 @@ def show_trayectoria():
         )
 
     with col2:
+        # Validar que year_start < year_end
+        min_year = min(config.reports.year_start, 2020)
+        max_year = max(config.reports.year_end, config.reports.year_start + 1)
+
         year_range = st.slider(
             "Rango de Años",
-            min_value=config.reports.year_start,
-            max_value=config.reports.year_end,
+            min_value=min_year,
+            max_value=max_year,
             value=(config.reports.year_start, config.reports.year_end)
         )
 
