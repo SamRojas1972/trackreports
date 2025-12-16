@@ -4,6 +4,9 @@ Dashboard principal de Streamlit para reportes de trayectoria
 import streamlit as st
 import sys
 from pathlib import Path
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
 
 # Agregar path del proyecto
 project_root = Path(__file__).parent.parent.parent
@@ -11,6 +14,8 @@ sys.path.insert(0, str(project_root))
 
 from src.utils.config import config
 from src.utils.logger import get_logger
+from src.backend.processors.extractor import DataExtractor
+from src.backend.processors.transformer import TrayectoriaTransformer
 
 
 logger = get_logger(__name__, config.paths.logs_dir)
@@ -154,18 +159,161 @@ def show_trayectoria():
         )
 
     if st.button("🔄 Cargar Datos", type="primary"):
-        with st.spinner("Cargando datos..."):
+        with st.spinner("Cargando datos desde la base de datos..."):
             try:
-                # Aquí irá la lógica de carga de datos
-                st.success("Datos cargados exitosamente!")
+                # Cargar datos reales
+                extractor = DataExtractor(year_start=year_range[0], year_end=year_range[1])
 
-                # Placeholder para visualizaciones
-                st.subheader("Trayectoria por Cohorte")
-                st.info("📊 Las visualizaciones se mostrarán aquí una vez conectado a la base de datos.")
+                # Extraer datos
+                logger.info(f"Extrayendo datos para {grado} ({year_range[0]}-{year_range[1]})")
+                datos = extractor.extraer_todos_datos(grado)
+
+                # Transformar datos
+                transformer = TrayectoriaTransformer(datos['resumen'])
+                trayectoria_df = transformer.crear_tabla_trayectoria()
+
+                st.success(f"✅ Datos cargados: {len(datos['nuevo_ingreso'])} NI, {len(datos['reinscritos'])} Reinscritos")
+
+                # ====================
+                # VISUALIZACIONES
+                # ====================
+
+                # 1. Resumen de totales
+                st.markdown("---")
+                st.subheader("📊 Resumen General")
+
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    total_ni = datos['resumen']['nuevo_ingreso'].sum()
+                    st.metric("Nuevo Ingreso Total", f"{total_ni:,}")
+
+                with col2:
+                    total_eg = datos['resumen']['egresados'].sum()
+                    st.metric("Egresados Total", f"{total_eg:,}")
+
+                with col3:
+                    total_ti = datos['resumen']['titulados'].sum()
+                    st.metric("Titulados Total", f"{total_ti:,}")
+
+                # 2. Gráfico de tendencia temporal
+                st.markdown("---")
+                st.subheader("📈 Tendencia Temporal")
+
+                fig_tendencia = go.Figure()
+
+                fig_tendencia.add_trace(go.Scatter(
+                    x=datos['resumen']['periodo_id'],
+                    y=datos['resumen']['nuevo_ingreso'],
+                    name='Nuevo Ingreso',
+                    mode='lines+markers',
+                    line=dict(color='#366092', width=3)
+                ))
+
+                fig_tendencia.add_trace(go.Scatter(
+                    x=datos['resumen']['periodo_id'],
+                    y=datos['resumen']['egresados'],
+                    name='Egresados',
+                    mode='lines+markers',
+                    line=dict(color='#5B9BD5', width=3)
+                ))
+
+                fig_tendencia.add_trace(go.Scatter(
+                    x=datos['resumen']['periodo_id'],
+                    y=datos['resumen']['titulados'],
+                    name='Titulados',
+                    mode='lines+markers',
+                    line=dict(color='#70AD47', width=3)
+                ))
+
+                fig_tendencia.update_layout(
+                    title=f"Evolución por Periodo - {grado}",
+                    xaxis_title="Periodo",
+                    yaxis_title="Número de Estudiantes",
+                    hovermode='x unified',
+                    height=400
+                )
+
+                st.plotly_chart(fig_tendencia, use_container_width=True)
+
+                # 3. Tabla de datos resumen
+                st.markdown("---")
+                st.subheader("📋 Datos por Periodo")
+
+                # Formatear tabla para mejor visualización
+                resumen_display = datos['resumen'].copy()
+                resumen_display = resumen_display.sort_values('periodo_id', ascending=False)
+
+                st.dataframe(
+                    resumen_display,
+                    use_container_width=True,
+                    height=300,
+                    hide_index=True
+                )
+
+                # 4. Trayectoria por cohorte (si está disponible)
+                if trayectoria_df is not None and not trayectoria_df.empty:
+                    st.markdown("---")
+                    st.subheader("🎓 Trayectoria por Cohorte")
+
+                    # Mostrar solo las primeras columnas relevantes
+                    cols_to_show = [col for col in trayectoria_df.columns if col.startswith('P') or col == 'Generación']
+                    if cols_to_show:
+                        st.dataframe(
+                            trayectoria_df[cols_to_show].head(10),
+                            use_container_width=True,
+                            height=300
+                        )
+
+                        st.info("💡 Mostrando las primeras 10 generaciones. El reporte Excel contiene todos los datos.")
+
+                # 5. Distribución de estudiantes
+                st.markdown("---")
+                st.subheader("👥 Distribución de Estudiantes")
+
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    # Gráfico de pie para NI vs Reinscritos
+                    totales = pd.DataFrame({
+                        'Tipo': ['Nuevo Ingreso', 'Reinscritos'],
+                        'Total': [len(datos['nuevo_ingreso']), len(datos['reinscritos'])]
+                    })
+
+                    fig_pie = px.pie(
+                        totales,
+                        values='Total',
+                        names='Tipo',
+                        title='Nuevo Ingreso vs Reinscritos',
+                        color_discrete_sequence=['#366092', '#5B9BD5']
+                    )
+                    st.plotly_chart(fig_pie, use_container_width=True)
+
+                with col2:
+                    # Top 5 periodos con más nuevo ingreso
+                    top_periodos = datos['resumen'].nlargest(5, 'nuevo_ingreso')[['periodo_id', 'nuevo_ingreso']]
+
+                    fig_bar = px.bar(
+                        top_periodos,
+                        x='periodo_id',
+                        y='nuevo_ingreso',
+                        title='Top 5 Periodos - Nuevo Ingreso',
+                        color='nuevo_ingreso',
+                        color_continuous_scale='Blues'
+                    )
+                    fig_bar.update_layout(showlegend=False)
+                    st.plotly_chart(fig_bar, use_container_width=True)
+
+                # 6. Botón de descarga
+                st.markdown("---")
+                st.info("💾 Para obtener el reporte completo con todas las hojas y formato, usa la sección **Generación de Reportes**.")
 
             except Exception as e:
-                st.error(f"Error al cargar datos: {str(e)}")
-                logger.error(f"Error en visualización: {e}")
+                st.error(f"❌ Error al cargar datos: {str(e)}")
+                logger.error(f"Error en visualización: {e}", exc_info=True)
+
+                # Mostrar detalles del error en modo debug
+                with st.expander("🔍 Ver detalles del error"):
+                    st.code(str(e))
 
 
 def show_fimpes():
