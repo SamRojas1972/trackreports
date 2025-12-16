@@ -166,7 +166,7 @@ def show_trayectoria():
 
                 # Extraer datos
                 logger.info(f"Extrayendo datos para {grado} ({year_range[0]}-{year_range[1]})")
-                datos = extractor.extraer_todos_datos(grado)
+                datos = extractor.extract_all_for_grado(grado)
 
                 # Transformar datos
                 transformer = TrayectoriaTransformer(datos['resumen'])
