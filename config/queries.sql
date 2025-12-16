@@ -195,7 +195,7 @@ SELECT DISTINCT
     e.apellidos || ' ' || e.nombres AS "estudiante_nombre",
     cga.descripcion AS "nivel",
     pr.id AS "programa_id",
-    'No copiar. Formula.' AS "placeholder_formula",
+    LEFT(pr.id, LENGTH(pr.id) - 3) AS "program",
     pr.escuela,
     pr.nombre || ' ' || pr.plan AS "programa",
     'NI' AS "tipo"
@@ -227,7 +227,7 @@ SELECT DISTINCT
     e.apellidos || ' ' || e.nombres AS "estudiante_nombre",
     cga.descripcion AS "nivel",
     pr.id AS "programa_id",
-    'No copiar. Formula.' AS "placeholder_formula",
+    LEFT(pr.id, LENGTH(pr.id) - 3) AS "program",
     pr.escuela,
     pr.nombre || ' ' || pr.plan AS "programa",
     'NI' AS "tipo"
@@ -259,7 +259,7 @@ SELECT DISTINCT
     e.apellidos || ' ' || e.nombres AS "estudiante_nombre",
     cga.descripcion AS "nivel",
     pr.id AS "programa_id",
-    'No copiar. Formula.' AS "placeholder_formula",
+    LEFT(pr.id, LENGTH(pr.id) - 3) AS "program",
     pr.escuela,
     pr.nombre || ' ' || pr.plan AS "programa",
     'NI' AS "tipo"
@@ -292,7 +292,7 @@ SELECT DISTINCT
     e.apellidos || ' ' || e.nombres AS "estudiante_nombre",
     cga.descripcion AS "nivel",
     pr.id AS "programa_id",
-    'No copiar. Formula.' AS "placeholder_formula",
+    LEFT(pr.id, LENGTH(pr.id) - 3) AS "program",
     pr.escuela,
     pr.nombre || ' ' || pr.plan AS "programa",
     'REI' AS "tipo"
@@ -324,7 +324,7 @@ SELECT DISTINCT
     e.apellidos || ' ' || e.nombres AS "estudiante_nombre",
     cga.descripcion AS "nivel",
     pr.id AS "programa_id",
-    'No copiar. Formula.' AS "placeholder_formula",
+    LEFT(pr.id, LENGTH(pr.id) - 3) AS "program",
     pr.escuela,
     pr.nombre || ' ' || pr.plan AS "programa",
     'REI' AS "tipo"
@@ -356,7 +356,7 @@ SELECT DISTINCT
     e.apellidos || ' ' || e.nombres AS "estudiante_nombre",
     cga.descripcion AS "nivel",
     pr.id AS "programa_id",
-    'No copiar. Formula.' AS "placeholder_formula",
+    LEFT(pr.id, LENGTH(pr.id) - 3) AS "program",
     pr.escuela,
     pr.nombre || ' ' || pr.plan AS "programa",
     'REI' AS "tipo"
